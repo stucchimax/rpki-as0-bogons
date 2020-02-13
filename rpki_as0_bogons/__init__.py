@@ -1,0 +1,7 @@
+__version__ = "0.0.4"
+__author__ = "Massimiliano Stucchi"
+__author_email__ = "max@stucchi.ch"
+__copyright__ = "Copyright 2020, Massimiliano Stucchi"
+__license__ = "BSD"
+__status__ = "Stable"
+__url__ = "https://github.com/stucchimax/rpki-as0-bogons"
