@@ -1,4 +1,4 @@
-__version__ = "0.0.4"
+__version__ = "0.1"
 __author__ = "Massimiliano Stucchi"
 __author_email__ = "max@stucchi.ch"
 __copyright__ = "Copyright 2020, Massimiliano Stucchi"

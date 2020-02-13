@@ -34,8 +34,9 @@ def main():
 
     parser.add_argument("-f",
             dest='dest_file',
-            default="/usr/local/etc/bogons.slurm.txt",
-            help="File to be created with all the SLURM content")
+            default="/usr/local/etc/slurm.json",
+            help="File to be created with all the SLURM content (default is /usr/local/etc/slurm.json)")
+
 
     args = parser.parse_args()
 
