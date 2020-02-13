@@ -39,9 +39,6 @@ def main():
 
     args = parser.parse_args()
 
-    ipv4_bogons = "https://www.team-cymru.org/Services/Bogons/fullbogons-ipv4.txt"
-    ipv6_bogons = "https://www.team-cymru.org/Services/Bogons/fullbogons-ipv6.txt"
-
     output = {}
 
     output['slurmVersion'] = 1
@@ -51,6 +48,9 @@ def main():
     output["locallyAddedAssertions"] = {}
     output["locallyAddedAssertions"]["prefixAssertions"] = []
     output["locallyAddedAssertions"]["bgpsecAssertions"] = []
+
+    ipv4_bogons = "https://www.team-cymru.org/Services/Bogons/fullbogons-ipv4.txt"
+    ipv6_bogons = "https://www.team-cymru.org/Services/Bogons/fullbogons-ipv6.txt"
 
     roas = as0_roas_for(ipv4_bogons, 32) + as0_roas_for(ipv6_bogons, 128)
 
