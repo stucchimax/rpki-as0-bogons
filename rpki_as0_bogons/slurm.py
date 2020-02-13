@@ -37,7 +37,7 @@ def main():
             default="/usr/local/etc/bogons.slurm.txt",
             help="File to be created with all the SLURM content")
 
-    args = parser.parse_args()    
+    args = parser.parse_args()
 
     ipv4_bogons = "https://www.team-cymru.org/Services/Bogons/fullbogons-ipv4.txt"
     ipv6_bogons = "https://www.team-cymru.org/Services/Bogons/fullbogons-ipv6.txt"
@@ -52,46 +52,34 @@ def main():
     output["locallyAddedAssertions"]["prefixAssertions"] = []
     output["locallyAddedAssertions"]["bgpsecAssertions"] = []
 
-    roas = []
-
-    r = requests.get(ipv4_bogons)
-
-    bogons = r.text.split("\n")
-
-    # Remove the first and the last line
-    bogons.pop(0)
-    bogons.pop()
-
-    for network in bogons:
-        new_entry = {}
-        new_entry['asn'] = 0
-        new_entry['prefix'] = network
-        new_entry['maxPrefixLength'] = 32
-
-        roas.append(new_entry)
-
-
-    r = requests.get(ipv6_bogons)
-
-    bogons = r.text.split("\n")
-
-    # Remove the first and the last line
-    bogons.pop(0)
-    bogons.pop()
-
-    for network in bogons:
-        new_entry = {}
-        new_entry['asn'] = 0
-        new_entry['prefix'] = network
-        new_entry['maxPrefixLength'] = 128
-
-        roas.append(new_entry)
-
+    roas = as0_roas_for(ipv4_bogons, 32) + as0_roas_for(ipv6_bogons, 128)
 
     output['locallyAddedAssertions']["prefixAssertions"] = roas
 
     with open(args.dest_file, "w") as f:
         f.write(json.dumps(output, indent=2))
+
+def as0_roas_for(url, maxLength):
+    as0_roas = []
+
+    r = requests.get(url)
+
+    bogons = r.text.split("\n")
+
+    # Remove the first and the last line
+    bogons.pop(0)
+    bogons.pop()
+
+    for network in bogons:
+        new_entry = {}
+        new_entry['asn'] = 0
+        new_entry['prefix'] = network
+        new_entry['maxPrefixLength'] = maxLength
+
+        as0_roas.append(new_entry)
+
+    return as0_roas
+
 
 if __name__ == "__main__":
     main()
