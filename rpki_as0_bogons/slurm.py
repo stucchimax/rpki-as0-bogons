@@ -46,60 +46,15 @@ def main():
 
     args = parser.parse_args()
 
-
-#ipaddress.summarize_address_range(
-#     ipaddress.IPv4Address('192.0.2.0'),
-#     ipaddress.IPv4Address('192.0.2.130'))]
-
-
+    roas = []
     if args.use_delegated_stats:
-        delegated_stats = "https://www.nro.net/wp-content/uploads/apnic-uploads/delegated-extended"
-        r = requests.get(delegated_stats)
-
-        bogons = r.text.split("\n")
-        # Remove header and summaries
-        print(bogons.pop(0))
-        print(bogons.pop(0))
-        print(bogons.pop(0))
-        print(bogons.pop(0))
-        print(bogons.pop())
-        print("----------------")
-
-        roas = []
-
-        for line in bogons:
-            delegation = line.split("|")
-            status = delegation[6]
-            type = delegation[2]
-            value = delegation[3]
-            length = int(delegation[4])
-            if status != "assigned":
-                if type == "ipv4":
-                    ipv4s = ipaddress.summarize_address_range(ipaddress.IPv4Address(value), ipaddress.IPv4Address(value)+(length-1))
-                    for ipv4 in ipv4s:
-                        new_entry = {}
-                        new_entry['asn'] = 0
-                        new_entry['prefix'] = str(ipv4.exploded)
-                        new_entry['maxPrefixLength'] = 32
-
-                        roas.append(new_entry)
-
-                if type == "ipv6":
-                    ipv6 = ipaddress.IPv6Network(value+"/"+str(length))
-                    new_entry = {}
-                    new_entry['asn'] = 0
-                    new_entry['prefix'] = str(ipv6.exploded)
-                    new_entry['maxPrefixLength'] = 128
-
-                    roas.append(new_entry)
-
-#             print(status+"-"+type+"-"+value+"-"+length)
-#         print(bogons)
+        delegated_stats_url = "https://www.nro.net/wp-content/uploads/apnic-uploads/delegated-extended"
+        roas = nro_as0_roas(delegated_stats_url)
     else:
-        ipv4_bogons = "https://www.team-cymru.org/Services/Bogons/fullbogons-ipv4.txt"
-        ipv6_bogons = "https://www.team-cymru.org/Services/Bogons/fullbogons-ipv6.txt"
+        ipv4_cymru_bogons_url = "https://www.team-cymru.org/Services/Bogons/fullbogons-ipv4.txt"
+        ipv6_cymru_bogons_url = "https://www.team-cymru.org/Services/Bogons/fullbogons-ipv6.txt"
 
-        roas = as0_roas_for(ipv4_bogons, 32) + as0_roas_for(ipv6_bogons, 128)
+        roas = cymru_as0_roas(ipv4_cymru_bogons_url, 32) + cymru_as0_roas(ipv6_cymru_bogons_url, 128)
 
     output = {}
 
@@ -116,23 +71,52 @@ def main():
     with open(args.dest_file, "w") as f:
         f.write(json.dumps(output, indent=2))
 
-def as0_roas_for(url, maxLength):
-    as0_roas = []
-
-    r = requests.get(url)
-
-    bogons = r.text.split("\n")
-
+def cymru_as0_roas(url, maxLength):
+    bogons = requests.get(url).text.split("\n")
     # Remove the first and the last line
-    bogons.pop(0)
-    bogons.pop()
+    bogons.pop(0) # # last updated 1581670201 (Fri Feb 14 08:50:01 2020 GMT)
+    bogons.pop()  # <last empty line on the file>
+
+    return as0_roas_for(bogons, maxLength)
+
+def nro_as0_roas(url):
+        delegations = requests.get(url).text.split("\n")
+        # Remove header and summaries
+        delegations.pop(0) # 2|nro|20200214|574416|19821213|20200214|+0000
+        delegations.pop(0) # nro|*|asn|*|91534|summary
+        delegations.pop(0) # nro|*|ipv4|*|214428|summary
+        delegations.pop(0) # nro|*|ipv6|*|268454|summary
+        delegations.pop()  # <last empty line on the file>
+
+        roas = []
+
+        for line in delegations:
+            delegation = line.split("|")
+            type = delegation[2]
+            value = delegation[3]
+            length = int(delegation[4])
+            status = delegation[6]
+
+            if status == "available" or status == "ianapool" or status == "ietf" or status == "reserved": # meaning !assigned
+                if type == "ipv4":
+                    v4networks = ipaddress.summarize_address_range(ipaddress.IPv4Address(value), ipaddress.IPv4Address(value)+(length-1))
+                    roas += as0_roas_for(v4networks, 32)
+
+                if type == "ipv6":
+                    v6networks = [ipaddress.IPv6Network(value+"/"+str(length))]
+                    roas += as0_roas_for(v6networks, 128)
+
+        return roas
+
+
+def as0_roas_for(bogons, maxLength):
+    as0_roas = []
 
     for network in bogons:
         new_entry = {}
         new_entry['asn'] = 0
-        new_entry['prefix'] = network
+        new_entry['prefix'] = str(network)
         new_entry['maxPrefixLength'] = maxLength
-
         as0_roas.append(new_entry)
 
     return as0_roas
