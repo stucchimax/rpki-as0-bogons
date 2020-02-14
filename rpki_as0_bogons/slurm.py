@@ -26,6 +26,7 @@
 import argparse
 import json
 import requests
+import ipaddress
 
 def main():
 
@@ -37,7 +38,68 @@ def main():
             default="/usr/local/etc/bogons.slurm.txt",
             help="File to be created with all the SLURM content")
 
+    parser.add_argument("--use-delegated-stats",
+            dest='use_delegated_stats',
+            default=False,
+            action='store_true',
+            help="Enable the use of NRO delegated stats (EXPERIMENTAL - default bogons list will not be taken in consideration)")
+
     args = parser.parse_args()
+
+
+#ipaddress.summarize_address_range(
+#     ipaddress.IPv4Address('192.0.2.0'),
+#     ipaddress.IPv4Address('192.0.2.130'))]
+
+
+    if args.use_delegated_stats:
+        delegated_stats = "https://www.nro.net/wp-content/uploads/apnic-uploads/delegated-extended"
+        r = requests.get(delegated_stats)
+
+        bogons = r.text.split("\n")
+        # Remove header and summaries
+        print(bogons.pop(0))
+        print(bogons.pop(0))
+        print(bogons.pop(0))
+        print(bogons.pop(0))
+        print(bogons.pop())
+        print("----------------")
+
+        roas = []
+
+        for line in bogons:
+            delegation = line.split("|")
+            status = delegation[6]
+            type = delegation[2]
+            value = delegation[3]
+            length = int(delegation[4])
+            if status != "assigned":
+                if type == "ipv4":
+                    ipv4s = ipaddress.summarize_address_range(ipaddress.IPv4Address(value), ipaddress.IPv4Address(value)+(length-1))
+                    for ipv4 in ipv4s:
+                        new_entry = {}
+                        new_entry['asn'] = 0
+                        new_entry['prefix'] = str(ipv4.exploded)
+                        new_entry['maxPrefixLength'] = 32
+
+                        roas.append(new_entry)
+
+                if type == "ipv6":
+                    ipv6 = ipaddress.IPv6Network(value+"/"+str(length))
+                    new_entry = {}
+                    new_entry['asn'] = 0
+                    new_entry['prefix'] = str(ipv6.exploded)
+                    new_entry['maxPrefixLength'] = 128
+
+                    roas.append(new_entry)
+
+#             print(status+"-"+type+"-"+value+"-"+length)
+#         print(bogons)
+    else:
+        ipv4_bogons = "https://www.team-cymru.org/Services/Bogons/fullbogons-ipv4.txt"
+        ipv6_bogons = "https://www.team-cymru.org/Services/Bogons/fullbogons-ipv6.txt"
+
+        roas = as0_roas_for(ipv4_bogons, 32) + as0_roas_for(ipv6_bogons, 128)
 
     output = {}
 
@@ -48,11 +110,6 @@ def main():
     output["locallyAddedAssertions"] = {}
     output["locallyAddedAssertions"]["prefixAssertions"] = []
     output["locallyAddedAssertions"]["bgpsecAssertions"] = []
-
-    ipv4_bogons = "https://www.team-cymru.org/Services/Bogons/fullbogons-ipv4.txt"
-    ipv6_bogons = "https://www.team-cymru.org/Services/Bogons/fullbogons-ipv6.txt"
-
-    roas = as0_roas_for(ipv4_bogons, 32) + as0_roas_for(ipv6_bogons, 128)
 
     output['locallyAddedAssertions']["prefixAssertions"] = roas
 
