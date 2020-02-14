@@ -30,14 +30,14 @@ import requests
 def main():
 
     parser = argparse.ArgumentParser(
-            description='A script to generate a SLURM file for all bogons with origin AS0')
+            description='A script to generate a SLURM file for all bogons with origin AS0',
+            epilog="Version 0.1.1")
 
     parser.add_argument("-f",
             dest='dest_file',
             default="/usr/local/etc/slurm.json",
             help="File to be created with all the SLURM content (default is /usr/local/etc/slurm.json)")
-
-
+            
     args = parser.parse_args()
 
     output = {}
