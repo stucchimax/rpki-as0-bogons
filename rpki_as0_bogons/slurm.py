@@ -36,7 +36,7 @@ def main():
 
     parser.add_argument("-f",
             dest='dest_file',
-            default="/usr/local/etc/bogons.slurm.txt",
+            default="/usr/local/etc/slurm.json",
             help="File to be created with all the SLURM content (default is /usr/local/etc/slurm.json)")
 
     parser.add_argument("--use-delegated-stats",
