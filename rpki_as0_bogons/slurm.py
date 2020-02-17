@@ -32,18 +32,18 @@ def main():
 
     parser = argparse.ArgumentParser(
             description='A script to generate a SLURM file for all bogons with origin AS0',
-            epilog="Version 0.1.1")
+            epilog="Version 0.2")
 
     parser.add_argument("-f",
             dest='dest_file',
             default="/usr/local/etc/slurm.json",
             help="File to be created with all the SLURM content (default is /usr/local/etc/slurm.json)")
 
-    parser.add_argument("--use-delegated-stats",
+    parser.add_argument("-N",
             dest='use_delegated_stats',
             default=False,
             action='store_true',
-            help="Enable the use of NRO delegated stats (EXPERIMENTAL - default bogons list will not be taken in consideration)")
+            help="Use the NRO delegated stats instead of Team Cymru's bogon list")
 
     args = parser.parse_args()
 
