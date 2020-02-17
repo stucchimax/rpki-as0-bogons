@@ -24,9 +24,9 @@
 #OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import argparse
+import ipaddress
 import json
 import requests
-import ipaddress
 
 def main():
 
