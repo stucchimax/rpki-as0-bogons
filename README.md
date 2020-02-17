@@ -19,13 +19,14 @@ You can find the software on PyPi, so you can install it easily via pip.
 ## Usage
 
 ```shell
-usage: rpki-as0-bogons [-h] [-f DEST_FILE]
+usage: slurm.py [-h] [-f DEST_FILE]
 
 A script to generate a SLURM file for all bogons with origin AS0
 
 optional arguments:
   -h, --help    show this help message and exit
-  -f DEST_FILE  File to be created with all the SLURM content
+  -f DEST_FILE  File to be created with all the SLURM content (default is
+                /usr/local/etc/slurm.json)
 ```
 
 ## Using it with a validator
