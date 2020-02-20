@@ -32,31 +32,55 @@ def main():
 
     parser = argparse.ArgumentParser(
             description='A script to generate a SLURM file for all bogons with origin AS0',
-            epilog="Version 0.2")
+            epilog="Version 0.3")
 
     parser.add_argument("-f",
             dest='dest_file',
             default="/usr/local/etc/slurm.json",
             help="File to be created with all the SLURM content (default is /usr/local/etc/slurm.json)")
+    
+    parser.add_argument("-P",
+            dest='peeringDB_lans',
+            default=False,
+            action='store_true',
+            help="Include the list of IXP LANs from PeeringDB. \
+                    While some of them already have AS0 ROAs, not all of them do.  \
+                    Overlapping ROAs are fine, so it will be okay to generate them anyway")
 
-    parser.add_argument("-N",
+
+    group = parser.add_mutually_exclusive_group(required=True)
+    
+    group.add_argument("-N",
             dest='use_delegated_stats',
             default=False,
             action='store_true',
-            help="Use the NRO delegated stats instead of Team Cymru's bogon list")
-
+            help="Use the NRO delegated stats")
+    
+    group.add_argument("-C",
+            dest='use_team_cymru',
+            default=False,
+            action='store_true',
+            help="Use the Team Cymru's bogons list")
+    
     args = parser.parse_args()
 
     roas = []
     if args.use_delegated_stats:
+        
         delegated_stats_url = "https://www.nro.net/wp-content/uploads/apnic-uploads/delegated-extended"
         roas = nro_as0_roas(delegated_stats_url)
-    else:
+    elif args.use_team_cymru:
+
         ipv4_cymru_bogons_url = "https://www.team-cymru.org/Services/Bogons/fullbogons-ipv4.txt"
         ipv6_cymru_bogons_url = "https://www.team-cymru.org/Services/Bogons/fullbogons-ipv6.txt"
 
         roas = cymru_as0_roas(ipv4_cymru_bogons_url, 32) + cymru_as0_roas(ipv6_cymru_bogons_url, 128)
 
+    if args.peeringDB_lans:
+        roas += peeringDB_roas(32,128)
+    
+    ### Now build the output file structure, and add the ROAs at the end
+    
     output = {}
 
     output['slurmVersion'] = 1
@@ -108,6 +132,30 @@ def nro_as0_roas(url):
                     roas += as0_roas_for(v6networks, 128)
 
         return roas
+
+
+def peeringDB_roas(maxLength_v4, maxLength_v6):
+
+    roas = []
+
+    url = "https://peeringdb.com/api/ixlan?depth=2"
+
+    s = requests.get(url)
+
+    for i in s.json()['data']:
+
+        for l in i['ixpfx_set']:
+            new_entry = {}
+            new_entry['asn'] = 0
+            new_entry['prefix'] = str(l['prefix'])
+            if l['protocol'] == "IPv6":
+                new_entry['maxPrefixLength'] = maxLength_v6
+            elif l['protocol'] == "IPv4":
+                new_entry['maxPrefixLength'] = maxLength_v4
+
+            roas.append(new_entry)
+
+    return roas
 
 
 def as0_roas_for(bogons, maxLength):
