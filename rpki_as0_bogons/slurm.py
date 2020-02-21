@@ -86,7 +86,7 @@ def main():
     output['slurmVersion'] = 1
     output["validationOutputFilters"] = {}
     output["validationOutputFilters"]["prefixFilters"] = []
-    output["validationOutputFilters"]["bgpsecFilter"] = []
+    output["validationOutputFilters"]["bgpsecFilters"] = []
     output["locallyAddedAssertions"] = {}
     output["locallyAddedAssertions"]["prefixAssertions"] = []
     output["locallyAddedAssertions"]["bgpsecAssertions"] = []
