@@ -19,7 +19,7 @@ You can find the software on PyPi, so you can install it easily via pip.
 ## Usage
 
 ```shell
-usage: slurm.py [-h] [-f DEST_FILE] [-N]
+usage: slurm.py [-h] [-f DEST_FILE] [-P] (-N | -C)
 
 A script to generate a SLURM file for all bogons with origin AS0
 
@@ -27,9 +27,11 @@ optional arguments:
   -h, --help    show this help message and exit
   -f DEST_FILE  File to be created with all the SLURM content (default is
                 /usr/local/etc/slurm.json)
+  -P            Include the list of IXP LANs from PeeringDB.
+  -C            Use the Team Cymru's bogons list  
   -N            Use the NRO delegated stats instead of Team Cymru's bogon list
 
-Version 0.2
+Version 0.2.1
 ```
 
 By default the Team Cymru lists is used, but if you want to include any network that's not assigned or allocated at the moment, it's better to use the NRO file.
