@@ -32,7 +32,7 @@ def main():
 
     parser = argparse.ArgumentParser(
             description='A script to generate a SLURM file for all bogons with origin AS0',
-            epilog="Version 0.3")
+            epilog="Version 0.3.1")
 
     parser.add_argument("-f",
             dest='dest_file',
