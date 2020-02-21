@@ -33,7 +33,7 @@ optional arguments:
   -N            Use the NRO delegated stats
   -C            Use the Team Cymru's bogons list
 
-Version 0.3
+Version 0.3.1
 ```
 
 You have to specify if you want to use the Team Cymru lists (`-C`) or the NRO delegated stats (`-N`). For bogons only, use the Team Cymru lists, but if you want to include any network that's not assigned or allocated at the moment, it's better to use the NRO file.
