@@ -13,13 +13,13 @@ Once loaded in a validator, this file will suggest the validating software to cr
 You can find the software on PyPi, so you can install it easily via pip.
 
 ```shell
-# pip3 install rpki-as0-bogon
+# pip3 install rpki-as0-bogons
 ```
 
 ## Usage
 
 ```shell
-usage: slurm.py [-h] [-f DEST_FILE] [-N]
+usage: rpki-as0-bogons [-h] [-f DEST_FILE] [-P] (-N | -C)
 
 A script to generate a SLURM file for all bogons with origin AS0
 
@@ -27,12 +27,16 @@ optional arguments:
   -h, --help    show this help message and exit
   -f DEST_FILE  File to be created with all the SLURM content (default is
                 /usr/local/etc/slurm.json)
-  -N            Use the NRO delegated stats instead of Team Cymru's bogon list
+  -P            Include the list of IXP LANs from PeeringDB. While some of
+                them already have AS0 ROAs, not all of them do. Overlapping
+                ROAs are fine, so it will be okay to generate them anyway
+  -N            Use the NRO delegated stats
+  -C            Use the Team Cymru's bogons list
 
-Version 0.2
+Version 0.3
 ```
 
-By default the Team Cymru lists is used, but if you want to include any network that's not assigned or allocated at the moment, it's better to use the NRO file.
+You have to specify if you want to use the Team Cymru lists (`-C`) or the NRO delegated stats (`-N`). For bogons only, use the Team Cymru lists, but if you want to include any network that's not assigned or allocated at the moment, it's better to use the NRO file.
 
 ## Using it with a validator
 
