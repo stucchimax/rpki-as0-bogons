@@ -49,7 +49,7 @@ You should start routinator with the *-x* switch, providing the path to the file
 You can use curl to supply the file to the validator:
 
 ```shell
-/usr/local/bin/curl -X POST -F "file=slurm.json" localhost:8080/api/slurm/upload
+/usr/local/bin/curl -X POST -F "file=@slurm.json" localhost:8080/api/slurm/upload
 ```
 
 ### Forth
