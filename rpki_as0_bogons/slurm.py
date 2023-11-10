@@ -100,6 +100,7 @@ def cymru_as0_roas(url, maxLength):
     bogons = requests.get(url).text.split("\n")
     # Remove the first and the last line
     bogons.pop(0) # # last updated 1581670201 (Fri Feb 14 08:50:01 2020 GMT)
+    bogons.pop(0) # # Know your network!  Please rigorously test all filters!
     bogons.pop()  # <last empty line on the file>
 
     return as0_roas_for(bogons, maxLength)
