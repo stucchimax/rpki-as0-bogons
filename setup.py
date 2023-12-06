@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2020, Massimiliano Stucchi
+# Copyright (c) 2020-2023, Massimiliano Stucchi
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
